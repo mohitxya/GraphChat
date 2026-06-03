@@ -1,12 +1,12 @@
 # AnchorAI / DoubtGraph
 
-AnchorAI is a portfolio-grade prototype for a non-linear AI learning interface. Instead of treating follow-up questions as messages at the bottom of a chat, it anchors each question to the exact span of text that caused the doubt and turns the conversation into a graph.
+The chat-based linear interface used by tools like ChatGPT, Gemini, etc., doesn’t work well when you’re learning or trying to understand something new.
 
-## Problem Statement
+Learning doesn’t happen in a straight line. You might have a doubt about one specific section of an LLM’s explanation, but copying that section, pasting it into the chat box, and then scrolling all the way down felt tedious to me.
 
-Normal AI chat is linear. That works for simple back-and-forth, but it breaks down when learning dense topics like transformer internals, operating systems, papers, codebases, or math. A single explanation can contain five different claims that need separate clarifications.
+So I built this.
 
-AnchorAI models those clarifications as span-grounded branches.
+It lets you take quick detours from any part of an explanation and turns your learning process into an organized mind map.
 
 ## Core Idea
 
@@ -17,11 +17,6 @@ AnchorAI models those clarifications as span-grounded branches.
 5. Create a child node connected to the selected span.
 6. Repeat recursively.
 
-The result feels like:
-
-```txt
-ChatGPT + mind map + research notebook
-```
 
 ## Screenshots
 
