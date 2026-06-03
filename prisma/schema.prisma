@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum NodeType {
+  root
+  branch
+  summary
+  note
+}
+
+enum NodeRole {
+  assistant
+  mixed
+}
+
+enum EdgeType {
+  span_question
+  expands
+  summarizes
+}
+
+model Conversation {
+  id        String      @id @default(cuid())
+  title     String
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+  nodes     GraphNode[]
+  edges     GraphEdge[]
+  anchors   Anchor[]
+
+  @@map("conversations")
+}
+
+model GraphNode {
+  id             String       @id @default(cuid())
+  conversationId String
+  type           NodeType
+  role           NodeRole     @default(mixed)
+  content        String
+  question       String?
+  selectedText   String?
+  x              Float        @default(0)
+  y              Float        @default(0)
+  parentNodeId   String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  parent         GraphNode?   @relation("NodeChildren", fields: [parentNodeId], references: [id], onDelete: SetNull)
+  children       GraphNode[]  @relation("NodeChildren")
+  outgoingEdges  GraphEdge[]  @relation("SourceEdges")
+  incomingEdges  GraphEdge[]  @relation("TargetEdges")
+  sourceAnchors  Anchor[]     @relation("AnchorSource")
+  targetAnchors  Anchor[]     @relation("AnchorTarget")
+
+  @@index([conversationId])
+  @@index([parentNodeId])
+  @@map("nodes")
+}
+
+model GraphEdge {
+  id             String       @id @default(cuid())
+  conversationId String
+  sourceNodeId   String
+  targetNodeId   String
+  type           EdgeType     @default(span_question)
+  createdAt      DateTime     @default(now())
+  conversation   Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sourceNode     GraphNode    @relation("SourceEdges", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode     GraphNode    @relation("TargetEdges", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([sourceNodeId])
+  @@index([targetNodeId])
+  @@map("edges")
+}
+
+model Anchor {
+  id                 String       @id @default(cuid())
+  conversationId     String
+  sourceNodeId       String
+  targetNodeId       String
+  selectedText       String
+  startOffset        Int?
+  endOffset          Int?
+  prefixText         String?
+  suffixText         String?
+  surroundingContext String?
+  createdAt          DateTime     @default(now())
+  conversation       Conversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  sourceNode         GraphNode    @relation("AnchorSource", fields: [sourceNodeId], references: [id], onDelete: Cascade)
+  targetNode         GraphNode    @relation("AnchorTarget", fields: [targetNodeId], references: [id], onDelete: Cascade)
+
+  @@index([conversationId])
+  @@index([sourceNodeId])
+  @@index([targetNodeId])
+  @@map("anchors")
+}
