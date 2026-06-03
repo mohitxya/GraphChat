@@ -22,11 +22,11 @@ It lets you take quick detours from any part of an explanation and turns your le
 
 Add screenshots here after running the first demo:
 
-- Root explanation node
+#### Root explanation node
 ![Root node](images/root_exp.png)
-- Highlight popover
+#### Highlight popover
 ![Highlight](images/highlight.png)
-- Branch answer graph
+#### Branch answer graph
 ![Branch](images/span_node.png)
 
 ## Tech Stack
