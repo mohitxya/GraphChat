@@ -28,8 +28,11 @@ ChatGPT + mind map + research notebook
 Add screenshots here after running the first demo:
 
 - Root explanation node
+![Root node](images/root_exp.png)
 - Highlight popover
+![Highlight](images/highlight.png)
 - Branch answer graph
+![Branch](images/span_node.png)
 
 ## Tech Stack
 
@@ -186,25 +189,4 @@ http://localhost:3000
 5. A child node appears to the right, connected to the root.
 6. Highlight text in the child node and ask another follow-up.
 
-## Roadmap
 
-- Streaming responses inside nodes
-- Collapse and expand subtrees
-- Regenerate node answer
-- Delete node or subtree
-- Branch summary
-- Export selected branch as markdown notes
-- Node search
-- Token-budgeted context builder
-- pgvector semantic retrieval
-- Auth and multi-user conversations
-- Vercel + Supabase/Neon deployment
-
-## Resume Positioning
-
-```txt
-AnchorAI | Next.js, TypeScript, React Flow, PostgreSQL, Prisma, LLM APIs
-• Built a non-linear AI learning interface where users highlight generated text and create context-preserving follow-up branches anchored to exact spans.
-• Designed a graph-based conversation model with nodes, edges, anchors, branch paths, and token-budgeted context construction.
-• Implemented custom React Flow nodes, span-selection UI, persistent graph state, and LLM prompt orchestration for recursive doubt exploration.
-```
