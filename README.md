@@ -44,74 +44,26 @@ Add screenshots here after running the first demo:
 
 ## Architecture
 
-```mermaid
-flowchart LR
-  User[User] --> UI[Next.js UI]
-  UI --> Canvas[React Flow Canvas]
-  UI --> Select[Selectable Markdown]
-  Select --> Popover[Ask-about-this Popover]
-  Popover --> AskAPI[/api/ask-span]
-  UI --> RootAPI[/api/generate-root]
-  RootAPI --> LLM[OpenAI-compatible LLM]
-  AskAPI --> Context[Context Builder]
-  Context --> DB[(PostgreSQL + Prisma)]
-  AskAPI --> LLM
-  RootAPI --> DB
-  AskAPI --> DB
-  DB --> Canvas
-```
+![Architecture diagram](images/architecture.png)
 
 ## Data Model
 
 ```mermaid
 erDiagram
-  Conversation ||--o{ GraphNode : contains
-  Conversation ||--o{ GraphEdge : contains
-  Conversation ||--o{ Anchor : contains
-  GraphNode ||--o{ GraphNode : parent
-  GraphNode ||--o{ GraphEdge : source
-  GraphNode ||--o{ GraphEdge : target
-  GraphNode ||--o{ Anchor : source
-  GraphNode ||--o{ Anchor : target
+  Conversation ||--o{ GraphNode : has
+  GraphNode ||--o{ GraphNode : replies_to
 
   Conversation {
     string id
     string title
-    datetime createdAt
-    datetime updatedAt
   }
 
   GraphNode {
     string id
     string conversationId
-    enum type
-    enum role
     string content
-    string question
     string selectedText
-    float x
-    float y
     string parentNodeId
-  }
-
-  GraphEdge {
-    string id
-    string conversationId
-    string sourceNodeId
-    string targetNodeId
-    enum type
-  }
-
-  Anchor {
-    string id
-    string sourceNodeId
-    string targetNodeId
-    string selectedText
-    int startOffset
-    int endOffset
-    string prefixText
-    string suffixText
-    string surroundingContext
   }
 ```
 
