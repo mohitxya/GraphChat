@@ -23,6 +23,13 @@ type OpenAiChatResponse = {
   };
 };
 
+export class LlmProviderRateLimitError extends Error {
+  constructor(message = "The AI provider rate limit was reached. Please try again later.") {
+    super(message);
+    this.name = "LlmProviderRateLimitError";
+  }
+}
+
 export class OpenAiCompatibleClient implements LlmClient {
   private readonly apiKey: string;
   private readonly baseUrl: string;
@@ -53,6 +60,10 @@ export class OpenAiCompatibleClient implements LlmClient {
     });
 
     const payload = (await response.json()) as OpenAiChatResponse;
+
+    if (response.status === 429) {
+      throw new LlmProviderRateLimitError(payload.error?.message);
+    }
 
     if (!response.ok) {
       throw new Error(payload.error?.message ?? "LLM request failed.");

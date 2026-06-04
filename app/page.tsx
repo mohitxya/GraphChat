@@ -1,5 +1,6 @@
 "use client";
 
+import { SignInButton, useUser } from "@clerk/nextjs";
 import { ArrowRight, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
@@ -9,6 +10,7 @@ import { Textarea } from "@/components/ui/textarea";
 
 export default function HomePage() {
   const router = useRouter();
+  const { isLoaded, isSignedIn } = useUser();
   const [question, setQuestion] = useState("Explain KV cache in transformers.");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +54,7 @@ export default function HomePage() {
             Ask questions exactly where your doubt appears.
           </h1>
           <p className="mt-5 max-w-2xl text-lg leading-8 text-slate-300">
-            AnchorAI turns AI explanations into a graph of grounded clarifications. Highlight a phrase, ask a follow-up, and branch the conversation from that span.
+            GraphChat turns AI explanations into a graph of grounded clarifications. Highlight a phrase, ask a follow-up, and branch the conversation from that span.
           </p>
         </div>
 
@@ -68,10 +70,20 @@ export default function HomePage() {
             placeholder="Explain virtual memory, attention heads, database indexes..."
           />
           {error ? <p className="mt-3 text-sm text-red-300">{error}</p> : null}
-          <Button type="submit" disabled={isLoading} className="mt-4 w-full">
-            {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
-            Generate root explanation
-          </Button>
+          {isLoaded && isSignedIn ? (
+            <Button type="submit" disabled={isLoading} className="mt-4 w-full">
+              {isLoading ? <Loader2 className="h-4 w-4 animate-spin" /> : <ArrowRight className="h-4 w-4" />}
+              Generate root explanation
+            </Button>
+          ) : null}
+          {isLoaded && !isSignedIn ? (
+            <SignInButton mode="modal">
+              <Button type="button" className="mt-4 w-full">
+                <ArrowRight className="h-4 w-4" />
+                Sign in to generate
+              </Button>
+            </SignInButton>
+          ) : null}
         </form>
       </section>
     </main>

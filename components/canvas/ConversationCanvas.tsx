@@ -13,7 +13,7 @@ import ReactFlow, {
 } from "reactflow";
 import "reactflow/dist/style.css";
 import { BranchNode } from "@/components/canvas/nodes/BranchNode";
-import { ExplanationNode, type DoubtGraphNodeData } from "@/components/canvas/nodes/ExplanationNode";
+import { ExplanationNode, type GraphChatNodeData } from "@/components/canvas/nodes/ExplanationNode";
 import type { SelectionAnchorPayload } from "@/lib/graph/types";
 
 export type SerializableConversation = {
@@ -62,7 +62,7 @@ export function ConversationCanvas({ conversation }: ConversationCanvasProps) {
   const [error, setError] = useState<string | null>(null);
   const [isAsking, setIsAsking] = useState(false);
 
-  const initialNodes: Node<DoubtGraphNodeData>[] = conversation.nodes.map((node) => ({
+  const initialNodes: Node<GraphChatNodeData>[] = conversation.nodes.map((node) => ({
     id: node.id,
     type: node.type === "root" ? "explanation" : "branch",
     position: { x: node.x, y: node.y },
@@ -99,7 +99,7 @@ export function ConversationCanvas({ conversation }: ConversationCanvasProps) {
         throw new Error(result.error ?? "Failed to create branch node.");
       }
 
-      const newNode: Node<DoubtGraphNodeData> = {
+      const newNode: Node<GraphChatNodeData> = {
         id: result.node.id,
         type: result.node.type === "root" ? "explanation" : "branch",
         position: { x: result.node.x, y: result.node.y },

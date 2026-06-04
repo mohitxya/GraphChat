@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { requireUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
 
 export async function GET(
@@ -6,9 +7,13 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   const { id } = await params;
+  const auth = await requireUserId();
+  if (auth.response) {
+    return auth.response;
+  }
 
-  const conversation = await prisma.conversation.findUnique({
-    where: { id },
+  const conversation = await prisma.conversation.findFirst({
+    where: { id, userId: auth.userId },
     include: {
       nodes: { orderBy: { createdAt: "asc" } },
       edges: { orderBy: { createdAt: "asc" } },

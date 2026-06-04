@@ -1,8 +1,10 @@
 import { NextResponse } from "next/server";
+import { requireUserId } from "@/lib/auth";
 import { prisma } from "@/lib/db/prisma";
-import { createLlmClient } from "@/lib/llm/client";
+import { createLlmClient, LlmProviderRateLimitError } from "@/lib/llm/client";
 import { buildContextForSpanQuestion } from "@/lib/llm/buildContext";
 import { getChildPosition } from "@/lib/graph/layout";
+import { enforceLlmRateLimit } from "@/lib/rate-limit";
 
 type AskSpanRequest = {
   conversationId?: string;
@@ -18,6 +20,11 @@ type AskSpanRequest = {
 
 export async function POST(request: Request) {
   try {
+    const auth = await requireUserId();
+    if (auth.response) {
+      return auth.response;
+    }
+
     const body = (await request.json()) as AskSpanRequest;
 
     if (!body.conversationId || !body.sourceNodeId || !body.selectedText || !body.userQuestion) {
@@ -27,9 +34,27 @@ export async function POST(request: Request) {
       );
     }
 
-    const sourceNode = await prisma.graphNode.findUniqueOrThrow({
-      where: { id: body.sourceNodeId }
+    const sourceNode = await prisma.graphNode.findFirst({
+      where: {
+        id: body.sourceNodeId,
+        conversationId: body.conversationId,
+        conversation: { userId: auth.userId }
+      }
     });
+
+    if (!sourceNode) {
+      return NextResponse.json({ error: "Source node not found." }, { status: 404 });
+    }
+
+    const rateLimit = await enforceLlmRateLimit({
+      request,
+      userId: auth.userId,
+      route: "ask-span"
+    });
+
+    if (!rateLimit.allowed) {
+      return rateLimit.response;
+    }
 
     const siblingCount = await prisma.graphNode.count({
       where: {
@@ -96,9 +121,13 @@ export async function POST(request: Request) {
       return { node, edge, anchor };
     });
 
-    return NextResponse.json(result);
+    return NextResponse.json(result, { headers: rateLimit.headers });
   } catch (error) {
     console.error(error);
+    if (error instanceof LlmProviderRateLimitError) {
+      return NextResponse.json({ error: error.message }, { status: 429 });
+    }
+
     return NextResponse.json(
       { error: error instanceof Error ? error.message : "Failed to answer span question." },
       { status: 500 }

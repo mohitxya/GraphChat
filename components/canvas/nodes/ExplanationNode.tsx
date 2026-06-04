@@ -5,7 +5,7 @@ import { Handle, Position, type NodeProps } from "reactflow";
 import { SelectableMarkdown } from "@/components/markdown/SelectableMarkdown";
 import type { SelectionAnchorPayload } from "@/lib/graph/types";
 
-export type DoubtGraphNodeData = {
+export type GraphChatNodeData = {
   id: string;
   type: "root" | "branch" | "summary" | "note";
   question: string | null;
@@ -14,7 +14,7 @@ export type DoubtGraphNodeData = {
   onAskSpan: (nodeId: string, payload: SelectionAnchorPayload & { userQuestion: string }) => Promise<void>;
 };
 
-export function ExplanationNode({ data }: NodeProps<DoubtGraphNodeData>) {
+export function ExplanationNode({ data }: NodeProps<GraphChatNodeData>) {
   return (
     <article className="w-[460px] border border-border bg-panel/95 shadow-node backdrop-blur">
       <Handle type="target" position={Position.Left} className="!border-accent !bg-background" />

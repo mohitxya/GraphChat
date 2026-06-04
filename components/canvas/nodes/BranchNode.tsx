@@ -3,9 +3,9 @@
 import { Copy } from "lucide-react";
 import { Handle, Position, type NodeProps } from "reactflow";
 import { SelectableMarkdown } from "@/components/markdown/SelectableMarkdown";
-import type { DoubtGraphNodeData } from "./ExplanationNode";
+import type { GraphChatNodeData } from "./ExplanationNode";
 
-export function BranchNode({ data }: NodeProps<DoubtGraphNodeData>) {
+export function BranchNode({ data }: NodeProps<GraphChatNodeData>) {
   return (
     <article className="w-[460px] border border-border bg-panel/95 shadow-node backdrop-blur">
       <Handle type="target" position={Position.Left} className="!border-gold !bg-background" />

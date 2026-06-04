@@ -1,4 +1,4 @@
-# AnchorAI / DoubtGraph
+# GraphChat
 
 The chat-based linear interface used by tools like ChatGPT, Gemini, etc., doesn’t work well when you’re learning or trying to understand something new.
 
@@ -36,6 +36,8 @@ Add screenshots here after running the first demo:
 - Tailwind CSS
 - React Flow
 - React Markdown
+- Clerk authentication
+- Upstash Redis rate limiting
 - Prisma ORM
 - PostgreSQL
 - OpenAI-compatible chat completions API
@@ -159,6 +161,18 @@ DATABASE_URL="postgresql://postgres:postgres@localhost:5432/anchor_ai?schema=pub
 OPENAI_API_KEY="sk-..."
 OPENAI_BASE_URL="https://api.openai.com/v1"
 OPENAI_MODEL="gpt-4o-mini"
+
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="pk_test_..."
+CLERK_SECRET_KEY="sk_test_..."
+NEXT_PUBLIC_CLERK_SIGN_IN_URL="/sign-in"
+NEXT_PUBLIC_CLERK_SIGN_UP_URL="/sign-up"
+
+UPSTASH_REDIS_REST_URL="https://..."
+UPSTASH_REDIS_REST_TOKEN="..."
+ROOT_LIMIT_10M="5"
+SPAN_LIMIT_10M="20"
+DAILY_LLM_LIMIT="50"
+AI_DEMO_DISABLED="false"
 ```
 
 Then:
@@ -168,6 +182,27 @@ npx prisma migrate dev --name init
 npx prisma generate
 npm run dev
 ```
+
+If you are upgrading an existing local database from the pre-auth MVP, run:
+
+```bash
+npx prisma migrate dev
+npx prisma generate
+```
+
+The auth migration adds `Conversation.userId`. Existing local conversations are assigned to `legacy_local_user`; new conversations are owned by the signed-in Clerk user.
+
+## Auth and Rate Limits
+
+GraphChat uses Clerk for authentication. Conversation reads and writes are private per Clerk `userId`.
+
+The LLM endpoints are protected by Upstash Redis quotas before any Groq/OpenAI-compatible API call is made:
+
+- Root explanations: `5 requests / 10 minutes / user`
+- Span questions: `20 requests / 10 minutes / user`
+- Daily LLM total: `50 requests / day / user`
+
+For local development, missing Upstash env vars skip rate limiting with a console warning. In production, missing Upstash config blocks LLM calls so the app does not ship without protection.
 
 Open:
 
@@ -183,5 +218,3 @@ http://localhost:3000
 4. Ask: `Why K and V but not Q?`
 5. A child node appears to the right, connected to the root.
 6. Highlight text in the child node and ask another follow-up.
-
-

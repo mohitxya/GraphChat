@@ -1,3 +1,4 @@
+import { auth } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { ConversationCanvas } from "@/components/canvas/ConversationCanvas";
 import { Sidebar } from "@/components/layout/Sidebar";
@@ -10,8 +11,14 @@ export default async function ConversationPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const conversation = await prisma.conversation.findUnique({
-    where: { id },
+  const { userId } = await auth();
+
+  if (!userId) {
+    notFound();
+  }
+
+  const conversation = await prisma.conversation.findFirst({
+    where: { id, userId },
     include: {
       nodes: { orderBy: { createdAt: "asc" } },
       edges: { orderBy: { createdAt: "asc" } },
