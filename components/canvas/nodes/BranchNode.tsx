@@ -1,6 +1,6 @@
 "use client";
 
-import { Copy } from "lucide-react";
+import { Copy, Trash2 } from "lucide-react";
 import { Handle, Position, type NodeProps } from "reactflow";
 import { SelectableMarkdown } from "@/components/markdown/SelectableMarkdown";
 import type { GraphChatNodeData } from "./ExplanationNode";
@@ -19,19 +19,33 @@ export function BranchNode({ data }: NodeProps<GraphChatNodeData>) {
               </p>
             ) : null}
           </div>
-          <button
-            type="button"
-            onClick={() => navigator.clipboard.writeText(data.content)}
-            className="rounded-md p-2 text-muted hover:bg-white/5 hover:text-foreground"
-            aria-label="Copy node content"
-          >
-            <Copy className="h-4 w-4" />
-          </button>
+          <div className="flex shrink-0 items-center gap-1">
+            <button
+              type="button"
+              onClick={() => navigator.clipboard.writeText(data.content)}
+              className="rounded-md p-2 text-muted hover:bg-white/5 hover:text-foreground"
+              aria-label="Copy node content"
+            >
+              <Copy className="h-4 w-4" />
+            </button>
+            <button
+              type="button"
+              onClick={() => data.onDeleteNode(data.id)}
+              className="rounded-md p-2 text-muted hover:bg-red-500/10 hover:text-red-200"
+              aria-label="Delete node"
+            >
+              <Trash2 className="h-4 w-4" />
+            </button>
+          </div>
         </div>
         {data.question ? <div className="mt-3 rounded-md bg-black/25 p-3 text-sm text-slate-200">{data.question}</div> : null}
       </header>
       <div className="nodrag nopan max-h-[520px] cursor-text overflow-y-auto px-4 py-3">
-        <SelectableMarkdown markdown={data.content} onAskSpan={(payload) => data.onAskSpan(data.id, payload)} />
+        <SelectableMarkdown
+          markdown={data.content}
+          persistentHighlights={data.persistentHighlights}
+          onAskSpan={(payload) => data.onAskSpan(data.id, payload)}
+        />
       </div>
       <Handle type="source" position={Position.Right} className="!border-gold !bg-gold" />
     </article>

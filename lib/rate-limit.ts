@@ -29,7 +29,16 @@ function getClientIp(request: Request) {
 }
 
 function hasUpstashConfig() {
-  return Boolean(process.env.UPSTASH_REDIS_REST_URL && process.env.UPSTASH_REDIS_REST_TOKEN);
+  const url = process.env.UPSTASH_REDIS_REST_URL;
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN;
+
+  return Boolean(
+    url &&
+      token &&
+      url.startsWith("https://") &&
+      url !== "https://..." &&
+      token !== "..."
+  );
 }
 
 const redis = hasUpstashConfig() ? Redis.fromEnv() : null;
