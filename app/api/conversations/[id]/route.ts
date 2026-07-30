@@ -27,3 +27,29 @@ export async function GET(
 
   return NextResponse.json({ conversation });
 }
+
+export async function DELETE(
+  _request: Request,
+  { params }: { params: Promise<{ id: string }> }
+) {
+  const { id } = await params;
+  const auth = await requireUserId();
+  if (auth.response) {
+    return auth.response;
+  }
+
+  const conversation = await prisma.conversation.findFirst({
+    where: { id, userId: auth.userId },
+    select: { id: true }
+  });
+
+  if (!conversation) {
+    return NextResponse.json({ error: "Conversation not found." }, { status: 404 });
+  }
+
+  await prisma.conversation.delete({
+    where: { id: conversation.id }
+  });
+
+  return NextResponse.json({ ok: true });
+}

@@ -98,6 +98,10 @@ function findTextPosition(nodes: Text[], offset: number) {
   return null;
 }
 
+function getNodesText(nodes: Text[]) {
+  return nodes.map((node) => node.textContent ?? "").join("");
+}
+
 function wrapByOffsets(container: HTMLElement, highlight: PersistentHighlight) {
   if (
     highlight.startOffset === null ||
@@ -108,6 +112,11 @@ function wrapByOffsets(container: HTMLElement, highlight: PersistentHighlight) {
   }
 
   const nodes = getHighlightableTextNodes(container);
+  const offsetText = getNodesText(nodes).slice(highlight.startOffset, highlight.endOffset);
+  if (offsetText !== highlight.selectedText) {
+    return false;
+  }
+
   const start = findTextPosition(nodes, highlight.startOffset);
   const end = findTextPosition(nodes, highlight.endOffset);
 

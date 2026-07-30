@@ -114,6 +114,10 @@ export async function enforceLlmRateLimit({
     };
   }
 
+  if (process.env.NODE_ENV !== "production" && process.env.ENFORCE_RATE_LIMITS_IN_DEVELOPMENT !== "true") {
+    return { allowed: true, headers: {} };
+  }
+
   if (!redis || !rootLimiter || !spanLimiter || !dailyLimiter) {
     if (process.env.NODE_ENV === "production") {
       return {
